@@ -1,0 +1,8 @@
+/target
+/configs/strategies/*
+!/configs/strategies/example.toml
+/configs/mongodb.toml
+/data/*
+!/data/mock.md
+opportunities*.log
+.env

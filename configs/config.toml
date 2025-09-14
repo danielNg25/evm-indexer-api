@@ -1,0 +1,171 @@
+db_path = "database"       # Path to the database for pool persistence
+load_snapshot_pool = false
+load_snapshot_path = false
+
+[[chains]]
+rpc_urls = [
+    "https://eth.llamarpc.com",
+    "https://eth-mainnet.public.blastapi.io",
+]
+websocket_urls = [
+    "wss://ethereum-rpc.publicnode.com",
+    # "wss://mainnet.gateway.tenderly.co",
+]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = true
+# custom_multicall_address
+pool_addresses = [
+    "0x10c4E72abd373295e613e3D2C2C5067d33a0e4a8",
+    "0x744159757caC173A7A3eCf5e97ADB10d1a725377",
+    "0xc931d9fefd06a8361d8057501f1ec522cf69c573",
+    "0x948b54A93f5aD1df6B8bFF6Dc249D99CA2EcA052",
+    "0xEb5cF33C5fA4E1101cbf2d8448A663E4aDB755a9",
+    "0x85bB44D0a6f2a5844975ef19149d9c4b0bB77B7d",
+    "0x5A90CC31652E68df288FAb4a0C0f39D7C069FEf7",
+    "0x1017B6a25f9e2feF58c28BE0e3d2bC2535c9d9C3",
+    "0x99132b53aB44694eeB372E87bceD3929e4ab8456",
+    "0x99a6880748cEB61C3D9b6D4cD49eDb59f79F405D",
+    "0x80F8143Fa056A063AaEeCec3323Aa3426262ddb2",
+    "0x654088953C4FF3f406241B6238cCd8f26D5bcb07",
+    "0xc789130A5b127449F439D17267744d24d69a5876",
+    "0x18D02326BB38d351cd874A0959aeFA8C716893d5",
+    "0xcbEa4F3f88a80160d4C242616fC1354da97bA037",
+    "0x3adf646C3aB4A8a2499FB22A65F121bE6acc79a9",
+    "0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801",
+    "0xae790e2a4785298cB18150F3dC4A60BD81fcd274",
+    "0xAD9eF19e289dcbC9AB27b83D2dF53CDEFF60f02D",
+    "0x49727bbe3ba46AeB1058749Ed2741a42fd1ccdA8",
+    "0xa7818F994f06546025102fA88dBC53c4C8357e7D",
+    "0xC1B24a9ecf68C14fFe65263b1591C29dD341D09d",
+    "0x844EB5C280F38c7462316AaD3F338eF9bDa62668",
+    "0x1C3a986A0314E4524773C94b89Dd8425baEb8176",
+    "0xD05D35b500DeE15AEcBae563A28E790Ae1594cB4",
+    "0xecEA5B1cC2E14bFBc835724b6150160dbc8D0b38",
+    "0x2982d3295A0E1a99e6E88Ece0E93FfDfc5c761ae",
+    "0x433a00819C771b33FA7223a5B3499b24FBCd1bBC",
+    "0xf763Bb342eB3d23C02ccB86312422fe0c1c17E94",
+    "0xb76E7fC28e3C78455c61D6C4d630e0F1E121D254",
+    "0x8AA8C67d14090Fe7f6153a80D42d3B36C3A6F320",
+    "0x4CED7fc553098cB5c23A9D8339bee8175EFCB66E",
+    "0x2d6fcFdE9709343c4c7a78D91077473d6b604653",
+    "0x961eC3bb28C9E98A040c4bDEd38917aA96B791bE",
+    "0x88B81BC7f6Dd4032eD626f452d66028eCD50E64a",
+    "0x6916f79669F745aeBD82433583c85665bfaE6FBB",
+    "0xb02045AD2CA16E8f4675088140e369260BB280c8",
+    "0xd57cF8D2B9C6A25056E4b08086311C666b499774",
+    "0x4042A04c54eF133aC2a3C93DB69d43C6C02a330b",
+    "0x7FdEB46b3a0916630f36E886D675602b1007Fcbb",
+    "0x1E49768714E438E789047f48FD386686a5707db2",
+    "0x0c3FDf9C70835F9Be9dB9585eCB6A1Ee3f20a6c7",
+    "0x57FC98c8b099C087d059FF3B72A3f43c2d8c229f",
+    "0x0648F8E88dbeEA37AE967E8621818785cC324140",
+    "0xe45b4a84E0aD24B8617a489d743c52B84B7aCeBE",
+    "0x4bB0925FA50Da9B4c8936869433b48e78cCc5c13",
+    "0xB3D994978D2Bc50d2ce74c45FcD923E7C9c06730",
+    "0xff70dE5183Aede4be2EFf73EFcC8EA2A8590229B",
+    "0xa455B6B139e10b6a493C0861f2C78efc54B913B9",
+    "0xc5aeF14918d74174871C60549dA7B1FDb340479F",
+    "0xc3d7aA944105d3FaFE07fc1822102449C916a8d0",
+    "0x56B9F76aE3c872818F9250A700A2626240AE0169",
+    "0x8dacBaD3b875f95497a9497DcF177692E87A6F90",
+    "0xa7fd8ff8f4cADa298286D3006ee8f9c11E2Ff84E",
+    "0x011A4318e7a45927004018dc88BEc93953476615",
+    "0xd9999F7F26aF362207807Be9D78DAf2c9CAAcda2",
+    "0xf76b608532Ce4dC94a2D6079F7fBcFcE6C816916",
+    "0x18C12a654F982F68a91e8e6A4170Ca1Fcb9D60A2",
+    "0xDfDC4f225A18c62bfe63cec660C18479DD9e0A7B",
+]
+pools_with_type = []
+
+# BNB
+[[chains]]
+rpc_urls = ["https://binance.llamarpc.com"]
+websocket_urls = ["wss://bsc-rpc.publicnode.com"]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = true
+# custom_multicall_address
+pool_addresses = [
+    "0x1fd177Bf93CBF67ea92AF96cDEeCb7D67C21D535",
+    # "0x144b632e957dc93A324a60f06Ff19E26958c0F99",
+    # "0x2702f90d2318a82E637DCe7e2bFaC7cC097E88F3",
+    # "0x3ab7Dc57dDE2De98c7b7999786Cd7245c9A20a24",
+    # "0xc47172B8E5a1cB563373b97681364A452C4e20b8",
+    # "0xD8eBB11D0c832e447cCe577c4360C19EC277BA35",
+    # "0xFA5A4aDe0235673d8c5e971616E7aF51CB6708EF",
+    # "0xC6585bc17b53792f281a9739579DD60535c1F9FB",
+    # "0x73Eda54A43c6a3d08ee30B089Ef4C1bC3D0d4d9B",
+    # "0x6C805d2077025EaAa42faE7F764e61Df42aADB14",
+    # "0x1a229191fd995A5C95694Ee78AB5d3C8c8793023",
+]
+pools_with_type = []
+
+# Base
+[[chains]]
+rpc_urls = [
+    "https://base.llamarpc.com",
+    "https://mainnet.base.org",
+    "https://base.gateway.tenderly.co",
+]
+websocket_urls = [
+    "wss://base-rpc.publicnode.com",
+    "wss://0xrpc.io/base",
+    "wss://base.gateway.tenderly.co",
+]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = true
+# custom_multicall_address
+pool_addresses = [
+    "0xabEeFbc1663C6bEF78E69a89Fad59f1ca2393344",
+    "0x9E6A565C2322f8646F2653352e771738A0EE75a3",
+    "0x1DDa8b6469df243971381f1f3F4137814ca68722",
+]
+pools_with_type = []
+
+
+# Polygon
+[[chains]]
+rpc_urls = [
+    "https://polygon-rpc.com",
+    "https://polygon-rpc.com",
+    "https://polygon-mainnet.public.blastapi.io",
+]
+websocket_urls = [
+    "wss://polygon-bor-rpc.publicnode.com",
+    "wss://polygon.gateway.tenderly.co",
+]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = true
+# custom_multicall_address
+pool_addresses = [
+    "0x945695Ce6B1Be8267140db26f06fa16bA103DB5e",
+    "0x2e7a8cf6F87eD2C04Fb4CF2913626a2b3a4052e3",
+]
+pools_with_type = []
+
+
+# XDC
+[[chains]]
+rpc_urls = ["https://rpc.ankr.com/xdc", "https://rpc.xdc.org"]
+websocket_urls = ["wss://rpc.xdcrpc.com/ws", "wss://erpc.xdcrpc.com/ws"]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = true
+custom_multicall_address = "0x0c9A8dB3B6C58bC02b8473167b0062b543F3ED7f"
+pool_addresses = [
+    "0x51eca610dcfc2e27696286564023971bf5a8790f",
+    "0x662c972560e2b9f5014d6d42721121b4a18af52a",
+    "0x1eb5fac40c45361e63861e57cd5c5202e5246716",
+    "0xe3009e01a88323b6cbaa13367202c909cc825c69",
+    "0x71725550d53ecc0a58d07d2312b1ec0ee05ebdab",
+    "0xe5c0d0bc5866bc3638f2374d59b697e4fd48ea94",
+]
+pools_with_type = []

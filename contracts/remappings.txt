@@ -1,0 +1,8 @@
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/
+forge-std/=node_modules/forge-std/
+@aave/core-v3/contracts/=node_modules/@aave/core-v3/contracts/
+@pyth-network/=node_modules/@pythnetwork/pyth-sdk-solidity/
+@uniswap/v3-periphery/contracts/=node_modules/@uniswap/v3-periphery/contracts/
+@uniswap/v3-core/contracts/=node_modules/@uniswap/v3-core/contracts/
+@uniswap/v2-core/contracts/=node_modules/@uniswap/v2-core/contracts/
