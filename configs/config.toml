@@ -1,6 +1,5 @@
 db_path = "database"       # Path to the database for pool persistence
 load_snapshot_pool = false
-load_snapshot_path = false
 
 [[chains]]
 rpc_urls = [
@@ -9,6 +8,7 @@ rpc_urls = [
 ]
 websocket_urls = [
     "wss://ethereum-rpc.publicnode.com",
+    "wss://eth.drpc.org",
     # "wss://mainnet.gateway.tenderly.co",
 ]
 start_block = 0
@@ -81,7 +81,10 @@ pools_with_type = []
 
 # BNB
 [[chains]]
-rpc_urls = ["https://binance.llamarpc.com"]
+rpc_urls = [
+    # "https://1rpc.io/bnb",
+    "https://binance-smart-chain-public.nodies.app",
+]
 websocket_urls = ["wss://bsc-rpc.publicnode.com"]
 start_block = 0
 max_blocks_per_batch = 1000
@@ -90,16 +93,16 @@ use_websocket = true
 # custom_multicall_address
 pool_addresses = [
     "0x1fd177Bf93CBF67ea92AF96cDEeCb7D67C21D535",
-    # "0x144b632e957dc93A324a60f06Ff19E26958c0F99",
-    # "0x2702f90d2318a82E637DCe7e2bFaC7cC097E88F3",
-    # "0x3ab7Dc57dDE2De98c7b7999786Cd7245c9A20a24",
-    # "0xc47172B8E5a1cB563373b97681364A452C4e20b8",
-    # "0xD8eBB11D0c832e447cCe577c4360C19EC277BA35",
-    # "0xFA5A4aDe0235673d8c5e971616E7aF51CB6708EF",
-    # "0xC6585bc17b53792f281a9739579DD60535c1F9FB",
-    # "0x73Eda54A43c6a3d08ee30B089Ef4C1bC3D0d4d9B",
-    # "0x6C805d2077025EaAa42faE7F764e61Df42aADB14",
-    # "0x1a229191fd995A5C95694Ee78AB5d3C8c8793023",
+    "0x144b632e957dc93A324a60f06Ff19E26958c0F99",
+    "0x2702f90d2318a82E637DCe7e2bFaC7cC097E88F3",
+    "0x3ab7Dc57dDE2De98c7b7999786Cd7245c9A20a24",
+    "0xc47172B8E5a1cB563373b97681364A452C4e20b8",
+    "0xD8eBB11D0c832e447cCe577c4360C19EC277BA35",
+    "0xFA5A4aDe0235673d8c5e971616E7aF51CB6708EF",
+    "0xC6585bc17b53792f281a9739579DD60535c1F9FB",
+    "0x73Eda54A43c6a3d08ee30B089Ef4C1bC3D0d4d9B",
+    "0x6C805d2077025EaAa42faE7F764e61Df42aADB14",
+    "0x1a229191fd995A5C95694Ee78AB5d3C8c8793023",
 ]
 pools_with_type = []
 
@@ -131,9 +134,8 @@ pools_with_type = []
 # Polygon
 [[chains]]
 rpc_urls = [
-    "https://polygon-rpc.com",
-    "https://polygon-rpc.com",
-    "https://polygon-mainnet.public.blastapi.io",
+    # "https://polygon-rpc.com",
+    "https://polygon-public.nodies.app",
 ]
 websocket_urls = [
     "wss://polygon-bor-rpc.publicnode.com",

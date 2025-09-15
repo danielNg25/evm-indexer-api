@@ -110,7 +110,6 @@ pub struct ChainConfigs {
 pub struct DatabaseConfig {
     pub db_path: Option<String>,
     pub load_snapshot_pool: Option<bool>,
-    pub load_snapshot_path: Option<bool>,
 }
 
 /// Strategy-specific configuration
@@ -148,7 +147,6 @@ pub struct ConfigFile {
     pub db_path: Option<String>,
     // pub snapshot_interval: Option<u64>,
     pub load_snapshot_pool: Option<bool>,
-    pub load_snapshot_path: Option<bool>,
     pub use_websocket: Option<bool>,
     // pub use_simple_nonce_management: Option<bool>,
     pub wait_time_for_startup: Option<u64>, // wait time for startup in milliseconds
@@ -210,7 +208,6 @@ impl AppConfig {
             database: DatabaseConfig {
                 db_path: config.db_path,
                 load_snapshot_pool: config.load_snapshot_pool,
-                load_snapshot_path: config.load_snapshot_path,
             },
             chain_configs,
         })

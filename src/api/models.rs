@@ -11,9 +11,25 @@ pub struct QuoteRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct BatchQuoteRequest {
+    pub network_id: u64,
+    pub pool: String,              // Address as string
+    pub token_in: Option<String>,  // Address as string
+    pub token_out: Option<String>, // Address as string
+    pub amounts: Vec<String>, // Array of amounts as strings (for token amounts) or hex (for raw amounts)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct QuoteResponse {
     pub success: bool,
     pub result: Option<String>, // U256 as hex string
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BatchQuoteResponse {
+    pub success: bool,
+    pub results: Option<Vec<String>>, // Array of U256 as hex strings
     pub error: Option<String>,
 }
 
@@ -64,6 +80,24 @@ impl QuoteResponse {
         Self {
             success: false,
             result: None,
+            error: Some(error),
+        }
+    }
+}
+
+impl BatchQuoteResponse {
+    pub fn success(results: Vec<U256>) -> Self {
+        Self {
+            success: true,
+            results: Some(results.into_iter().map(|r| r.to_string()).collect()),
+            error: None,
+        }
+    }
+
+    pub fn error(error: String) -> Self {
+        Self {
+            success: false,
+            results: None,
             error: Some(error),
         }
     }

@@ -94,50 +94,49 @@ async fn initialize_chain(
             "Snapshot loading disabled for chain {}, starting with empty pool registry",
             chain_id
         );
-    }
-
-    // 5. Initialize block number
-    let last_processed_block = pool_registry.get_last_processed_block().await;
-    let start_block = if should_load_snapshot_pool && last_processed_block > 0 {
-        // Only use last_processed_block if loading snapshots is enabled
-        last_processed_block
-    } else {
-        provider.get_block_number().await?
-    };
-    info!("Starting block for chain {}: {}", chain_id, start_block);
-
-    // 6. Fetch additional pool information if needed
-    info!("Fetching pool information from chain {}...", chain_id);
-    let custom_multicall_address =
-        if let Some(addr) = chain_config.custom_multicall_address.as_ref() {
-            addr.parse::<Address>().unwrap()
+        // 5. Initialize block number
+        let last_processed_block = pool_registry.get_last_processed_block().await;
+        let start_block = if should_load_snapshot_pool && last_processed_block > 0 {
+            // Only use last_processed_block if loading snapshots is enabled
+            last_processed_block
         } else {
-            MULTICALL3_ADDRESS
+            provider.get_block_number().await?
         };
-    fetch_and_display_pool_info(
-        &provider,
-        &chain_config
-            .pools
-            .iter()
-            .map(|p| p.address.clone())
-            .collect(),
-        BlockNumberOrTag::Number(start_block),
-        &token_registry,
-        &pool_registry,
-        chain_config.wait_time_for_startup,
-        custom_multicall_address,
-    )
-    .await?;
+        info!("Starting block for chain {}: {}", chain_id, start_block);
 
-    // 7. Save pool registry to database
-    if let Some(db) = db {
-        info!(
-            "Saving pool registry to database for chain {} at block: {}",
-            chain_id,
-            pool_registry.get_last_processed_block().await
-        );
-        pool_registry.save_to_db(&db).await?;
-        token_registry.write().await.save_to_db(&db).await?;
+        // 6. Fetch additional pool information if needed
+        info!("Fetching pool information from chain {}...", chain_id);
+        let custom_multicall_address =
+            if let Some(addr) = chain_config.custom_multicall_address.as_ref() {
+                addr.parse::<Address>().unwrap()
+            } else {
+                MULTICALL3_ADDRESS
+            };
+        fetch_and_display_pool_info(
+            &provider,
+            &chain_config
+                .pools
+                .iter()
+                .map(|p| p.address.clone())
+                .collect(),
+            BlockNumberOrTag::Number(start_block),
+            &token_registry,
+            &pool_registry,
+            chain_config.wait_time_for_startup,
+            custom_multicall_address,
+        )
+        .await?;
+
+        // 7. Save pool registry to database
+        if let Some(db) = db {
+            info!(
+                "Saving pool registry to database for chain {} at block: {}",
+                chain_id,
+                pool_registry.get_last_processed_block().await
+            );
+            pool_registry.save_to_db(&db).await?;
+            token_registry.write().await.save_to_db(&db).await?;
+        }
     }
 
     // 8. Start pool updater
@@ -190,7 +189,7 @@ async fn initialize_chain(
         let mut pool_updater = PoolUpdaterLatestBlock::new(
             Arc::clone(&provider),
             pool_registry.clone(),
-            start_block,
+            pool_registry.get_last_processed_block().await,
             chain_config.max_blocks_per_batch,
         )
         .await;
@@ -284,7 +283,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Start API server
     let app = create_router(processor);
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3001));
     info!("Starting API server on {}", addr);
 
     let _server_handle = tokio::spawn(async move {

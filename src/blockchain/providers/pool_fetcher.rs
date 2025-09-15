@@ -91,6 +91,7 @@ pub async fn fetch_and_display_pool_info<P: Provider + Send + Sync>(
         "Starting pool fetch at block: {}",
         block_number.as_number().unwrap()
     );
+    let chain_id = provider.get_chain_id().await?;
     let mut pool_types_present = HashSet::new();
     for (i, pool_address) in pool_addresses.iter().enumerate() {
         info!("\nFetching pool information for address: {}", pool_address);
@@ -100,7 +101,7 @@ pub async fn fetch_and_display_pool_info<P: Provider + Send + Sync>(
 
         // Identify pool type
         let pool_type = identify_pool_type(provider, address).await?;
-        info!("Pool type: {:?}", pool_type);
+        info!("CHAIN ID: {} Pool type: {:?}", chain_id, pool_type);
 
         // Fetch the pool
         match pool_type {

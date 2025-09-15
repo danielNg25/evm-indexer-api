@@ -5,7 +5,7 @@ This document describes the REST API endpoints available for the EVM Arbitrage B
 ## Base URL
 
 ```
-http://localhost:3000
+http://localhost:3001
 ```
 
 ## Endpoints
@@ -207,6 +207,152 @@ Calculates the output amount for a given input amount using human-readable token
 }
 ```
 
+## Batch Quote Endpoints
+
+The batch quote endpoints allow you to get quotes for multiple amounts in a single request, which is more efficient than making multiple individual requests.
+
+### Batch Quote Amount In (Raw)
+
+**POST** `/quote/batch/amount-in/raw`
+
+Calculates the input amounts needed for given output amounts using raw token amounts.
+
+**Request Body:**
+
+```json
+curl -X POST http://localhost:3001/quote/batch/amount-in/raw -H "Content-Type: application/json" \
+
+-d '{
+    "network_id": 1,
+    "pool": "0x10c4E72abd373295e613e3D2C2C5067d33a0e4a8",
+    "token_in": "0x6055Dc6Ff1077eebe5e6D2BA1a1f53d7Ef8430dE",
+    "token_out": null,
+    "amounts": ["1000000000000000000", "10000000000000000000", "100000000000000000000"]
+}'
+```
+
+**Note:** Either `token_in` or `token_out` must be provided (not both).
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "results": [
+        "1000000000000000000",
+        "10000000000000000000",
+        "100000000000000000000"
+    ],
+    "error": null
+}
+```
+
+### Batch Quote Amount In (Token)
+
+**POST** `/quote/batch/amount-in/token`
+
+Calculates the input amounts needed for given output amounts using human-readable token amounts.
+
+**Request Body:**
+
+```json
+{
+    "network_id": 1,
+    "pool": "0x...",
+    "token_in": "0x...",
+    "token_out": null,
+    "amounts": ["1000.0", "500.0", "250.0"]
+}
+```
+
+**Note:** Either `token_in` or `token_out` must be provided (not both).
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "results": [
+        "1000000000000000000",
+        "10000000000000000000",
+        "100000000000000000000"
+    ],
+    "error": null
+}
+```
+
+### Batch Quote Amount Out (Raw)
+
+**POST** `/quote/batch/amount-out/raw`
+
+Calculates the output amounts for given input amounts using raw token amounts.
+
+**Request Body:**
+
+```json
+{
+    "network_id": 1,
+    "pool": "0x...",
+    "token_in": "0x...",
+    "token_out": null,
+    "amounts": [
+        "1000000000000000000",
+        "10000000000000000000",
+        "100000000000000000000"
+    ]
+}
+```
+
+**Note:** Either `token_in` or `token_out` must be provided (not both).
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "results": [
+        "1000000000000000000",
+        "10000000000000000000",
+        "100000000000000000000"
+    ],
+    "error": null
+}
+```
+
+### Batch Quote Amount Out (Token)
+
+**POST** `/quote/batch/amount-out/token`
+
+Calculates the output amounts for given input amounts using human-readable token amounts.
+
+**Request Body:**
+
+```json
+{
+    "network_id": 1,
+    "pool": "0x...",
+    "token_in": "0x...",
+    "token_out": null,
+    "amounts": ["1000.0", "500.0", "250.0"]
+}
+```
+
+**Note:** Either `token_in` or `token_out` must be provided (not both).
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "results": [
+        "1000000000000000000",
+        "10000000000000000000",
+        "100000000000000000000"
+    ],
+    "error": null
+}
+```
+
 ## Error Responses
 
 All endpoints return appropriate HTTP status codes:
@@ -232,16 +378,16 @@ Error responses include an error message:
 
 ```bash
 # Health check
-curl http://localhost:3000/health
+curl http://localhost:3001/health
 
 # Get networks
-curl http://localhost:3000/networks
+curl http://localhost:3001/networks
 
 # Get pools for Ethereum mainnet
-curl http://localhost:3000/networks/1/pools
+curl http://localhost:3001/networks/1/pools
 
 # Quote amount in (token) - using token_in
-curl -X POST http://localhost:3000/quote/amount-in/token \
+curl -X POST http://localhost:3001/quote/amount-in/token \
   -H "Content-Type: application/json" \
   -d '{
     "network_id": 1,
@@ -252,7 +398,7 @@ curl -X POST http://localhost:3000/quote/amount-in/token \
   }'
 
 # Quote amount in (token) - using token_out
-curl -X POST http://localhost:3000/quote/amount-in/token \
+curl -X POST http://localhost:3001/quote/amount-in/token \
   -H "Content-Type: application/json" \
   -d '{
     "network_id": 1,
@@ -261,18 +407,40 @@ curl -X POST http://localhost:3000/quote/amount-in/token \
     "token_out": "0x6055Dc6Ff1077eebe5e6D2BA1a1f53d7Ef8430dE",
     "amount": "1000.0"
   }'
+
+# Batch quote amount in (token) - multiple amounts
+curl -X POST http://localhost:3001/quote/batch/amount-in/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "network_id": 1,
+    "pool": "0x10c4E72abd373295e613e3D2C2C5067d33a0e4a8",
+    "token_in": "0x6055Dc6Ff1077eebe5e6D2BA1a1f53d7Ef8430dE",
+    "token_out": null,
+    "amounts": ["1000.0", "500.0", "250.0"]
+  }'
+
+# Batch quote amount out (raw) - multiple amounts
+curl -X POST http://localhost:3001/quote/batch/amount-out/raw \
+  -H "Content-Type: application/json" \
+  -d '{
+    "network_id": 1,
+    "pool": "0x10c4E72abd373295e613e3D2C2C5067d33a0e4a8",
+    "token_in": "0x6055Dc6Ff1077eebe5e6D2BA1a1f53d7Ef8430dE",
+    "token_out": null,
+    "amounts": ["0x1bc16d674ec80000", "0x2d79883d2000", "0x5af3107a4000"]
+  }'
 ```
 
 ### Using JavaScript
 
 ```javascript
 // Health check
-const health = await fetch('http://localhost:3000/health').then((r) =>
+const health = await fetch('http://localhost:3001/health').then((r) =>
     r.json()
 );
 
 // Quote amount in - using token_in
-const quote = await fetch('http://localhost:3000/quote/amount-in/token', {
+const quote = await fetch('http://localhost:3001/quote/amount-in/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -285,7 +453,7 @@ const quote = await fetch('http://localhost:3000/quote/amount-in/token', {
 }).then((r) => r.json());
 
 // Quote amount in - using token_out
-const quote2 = await fetch('http://localhost:3000/quote/amount-in/token', {
+const quote2 = await fetch('http://localhost:3001/quote/amount-in/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -296,4 +464,36 @@ const quote2 = await fetch('http://localhost:3000/quote/amount-in/token', {
         amount: '1000.0',
     }),
 }).then((r) => r.json());
+
+// Batch quote amount in - multiple amounts
+const batchQuote = await fetch(
+    'http://localhost:3001/quote/batch/amount-in/token',
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            network_id: 1,
+            pool: '0x...',
+            token_in: '0x...',
+            token_out: null,
+            amounts: ['1000.0', '500.0', '250.0'],
+        }),
+    }
+).then((r) => r.json());
+
+// Batch quote amount out - multiple amounts
+const batchQuoteOut = await fetch(
+    'http://localhost:3001/quote/batch/amount-out/raw',
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            network_id: 1,
+            pool: '0x...',
+            token_in: '0x...',
+            token_out: null,
+            amounts: ['0x1bc16d674ec80000', '0x2d79883d2000', '0x5af3107a4000'],
+        }),
+    }
+).then((r) => r.json());
 ```

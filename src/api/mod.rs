@@ -28,5 +28,22 @@ pub fn create_router(processor: Arc<Proccessor>) -> Router {
             "/quote/amount-out/token",
             post(handlers::quote_amount_out_token),
         )
+        // Batch quote endpoints
+        .route(
+            "/quote/batch/amount-in/raw",
+            post(handlers::batch_quote_amount_in_raw),
+        )
+        .route(
+            "/quote/batch/amount-in/token",
+            post(handlers::batch_quote_amount_in_token),
+        )
+        .route(
+            "/quote/batch/amount-out/raw",
+            post(handlers::batch_quote_amount_out_raw),
+        )
+        .route(
+            "/quote/batch/amount-out/token",
+            post(handlers::batch_quote_amount_out_token),
+        )
         .with_state(processor)
 }

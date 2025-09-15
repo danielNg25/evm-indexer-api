@@ -7,8 +7,8 @@ use axum::{
 use std::sync::Arc;
 
 use crate::api::models::{
-    HealthResponse, NetworksResponse, PoolsResponse, QuoteRequest, QuoteResponse, TokenInfo,
-    TokensResponse,
+    BatchQuoteRequest, BatchQuoteResponse, HealthResponse, NetworksResponse, PoolsResponse,
+    QuoteRequest, QuoteResponse, TokenInfo, TokensResponse,
 };
 use crate::core::proccessor::Proccessor;
 
@@ -36,6 +36,22 @@ fn validate_token_input(
     }
 }
 
+// Helper function to validate batch token input and return appropriate error
+fn validate_batch_token_input(
+    token_in: &Option<String>,
+    token_out: &Option<String>,
+) -> Result<(), BatchQuoteResponse> {
+    match (token_in, token_out) {
+        (Some(_), Some(_)) => Err(BatchQuoteResponse::error(
+            "Only one of token_in or token_out should be provided".to_string(),
+        )),
+        (None, None) => Err(BatchQuoteResponse::error(
+            "Either token_in or token_out is required".to_string(),
+        )),
+        _ => Ok(()),
+    }
+}
+
 pub async fn health_check() -> Json<HealthResponse> {
     Json(HealthResponse {
         status: "ok".to_string(),
@@ -57,7 +73,9 @@ pub async fn quote_amount_in_raw(
         return Ok(Json(error_response));
     }
 
-    let amount_out = U256::from_str_radix(request.amount.trim_start_matches("0x"), 16)
+    let amount_out = request
+        .amount
+        .parse::<U256>()
         .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let result = if let Some(token_in_str) = request.token_in {
@@ -126,7 +144,9 @@ pub async fn quote_amount_out_raw(
         return Ok(Json(error_response));
     }
 
-    let amount_in = U256::from_str_radix(request.amount.trim_start_matches("0x"), 16)
+    let amount_in = request
+        .amount
+        .parse::<U256>()
         .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let result = if let Some(token_in_str) = request.token_in {
@@ -179,6 +199,217 @@ pub async fn quote_amount_out_token(
         Ok(amount) => Ok(Json(QuoteResponse::success(amount))),
         Err(e) => Ok(Json(QuoteResponse::error(e.to_string()))),
     }
+}
+
+// Batch quote handlers
+pub async fn batch_quote_amount_in_raw(
+    State(processor): State<Arc<Proccessor>>,
+    Json(request): Json<BatchQuoteRequest>,
+) -> Result<Json<BatchQuoteResponse>, StatusCode> {
+    let pool_address = request
+        .pool
+        .parse::<Address>()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    // Validate token input
+    if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
+        return Ok(Json(error_response));
+    }
+
+    // Parse all amounts as decimal
+    let amounts: Result<Vec<U256>, StatusCode> = request
+        .amounts
+        .iter()
+        .map(|amount_str| {
+            amount_str
+                .parse::<U256>()
+                .map_err(|_| StatusCode::BAD_REQUEST)
+        })
+        .collect();
+
+    let amounts = amounts?;
+
+    let results = if let Some(token_in_str) = request.token_in {
+        let token_in = parse_token_address(Some(token_in_str))?;
+        let mut results = Vec::new();
+        for amount in amounts {
+            match processor
+                .quote_amount_in_token_in_raw(request.network_id, pool_address, token_in, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    } else {
+        let token_out_str = request.token_out.unwrap(); // Safe because we validated above
+        let token_out = parse_token_address(Some(token_out_str))?;
+        let mut results = Vec::new();
+        for amount in amounts {
+            match processor
+                .quote_amount_in_token_out_raw(request.network_id, pool_address, token_out, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    };
+
+    Ok(Json(BatchQuoteResponse::success(results)))
+}
+
+pub async fn batch_quote_amount_in_token(
+    State(processor): State<Arc<Proccessor>>,
+    Json(request): Json<BatchQuoteRequest>,
+) -> Result<Json<BatchQuoteResponse>, StatusCode> {
+    let pool_address = request
+        .pool
+        .parse::<Address>()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    // Validate token input
+    if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
+        return Ok(Json(error_response));
+    }
+
+    let results = if let Some(token_in_str) = request.token_in {
+        let token_in = parse_token_address(Some(token_in_str))?;
+        let mut results = Vec::new();
+        for amount in request.amounts {
+            match processor
+                .quote_amount_in_token_in(request.network_id, pool_address, token_in, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    } else {
+        let token_out_str = request.token_out.unwrap(); // Safe because we validated above
+        let token_out = parse_token_address(Some(token_out_str))?;
+        let mut results = Vec::new();
+        for amount in request.amounts {
+            match processor
+                .quote_amount_in_token_out(request.network_id, pool_address, token_out, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    };
+
+    Ok(Json(BatchQuoteResponse::success(results)))
+}
+
+pub async fn batch_quote_amount_out_raw(
+    State(processor): State<Arc<Proccessor>>,
+    Json(request): Json<BatchQuoteRequest>,
+) -> Result<Json<BatchQuoteResponse>, StatusCode> {
+    let pool_address = request
+        .pool
+        .parse::<Address>()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    // Validate token input
+    if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
+        return Ok(Json(error_response));
+    }
+
+    // Parse all amounts as decimal
+    let amounts: Result<Vec<U256>, StatusCode> = request
+        .amounts
+        .iter()
+        .map(|amount_str| {
+            amount_str
+                .parse::<U256>()
+                .map_err(|_| StatusCode::BAD_REQUEST)
+        })
+        .collect();
+
+    let amounts = amounts?;
+
+    let results = if let Some(token_in_str) = request.token_in {
+        let token_in = parse_token_address(Some(token_in_str))?;
+        let mut results = Vec::new();
+        for amount in amounts {
+            match processor
+                .quote_amount_out_token_in_raw(request.network_id, pool_address, token_in, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    } else {
+        let token_out_str = request.token_out.unwrap(); // Safe because we validated above
+        let token_out = parse_token_address(Some(token_out_str))?;
+        let mut results = Vec::new();
+        for amount in amounts {
+            match processor
+                .quote_amount_out_token_out_raw(request.network_id, pool_address, token_out, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    };
+
+    Ok(Json(BatchQuoteResponse::success(results)))
+}
+
+pub async fn batch_quote_amount_out_token(
+    State(processor): State<Arc<Proccessor>>,
+    Json(request): Json<BatchQuoteRequest>,
+) -> Result<Json<BatchQuoteResponse>, StatusCode> {
+    let pool_address = request
+        .pool
+        .parse::<Address>()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    // Validate token input
+    if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
+        return Ok(Json(error_response));
+    }
+
+    let results = if let Some(token_in_str) = request.token_in {
+        let token_in = parse_token_address(Some(token_in_str))?;
+        let mut results = Vec::new();
+        for amount in request.amounts {
+            match processor
+                .quote_amount_out_token_in(request.network_id, pool_address, token_in, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    } else {
+        let token_out_str = request.token_out.unwrap(); // Safe because we validated above
+        let token_out = parse_token_address(Some(token_out_str))?;
+        let mut results = Vec::new();
+        for amount in request.amounts {
+            match processor
+                .quote_amount_out_token_out(request.network_id, pool_address, token_out, amount)
+                .await
+            {
+                Ok(result) => results.push(result),
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results
+    };
+
+    Ok(Json(BatchQuoteResponse::success(results)))
 }
 
 pub async fn get_networks(
