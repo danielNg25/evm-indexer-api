@@ -1,2 +1,0 @@
-# Deployed
-Universal Quoter 0x487CC3fa56Af0539cADB7A6E0Cc754C6F52914d8

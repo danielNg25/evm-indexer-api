@@ -1,9 +1,0 @@
-**/.git
-**/.svn
-**/.hg
-**/node_modules
-**/artifacts
-**/cache
-**/coverage
-**/test-results
-**/typechain-types
