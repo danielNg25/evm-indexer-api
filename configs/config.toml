@@ -17,6 +17,7 @@ wait_time_for_startup = 100
 use_websocket = true
 # custom_multicall_address
 pool_addresses = [
+    "0xa98d625be12df46f7ecc060c1bffb505e80de6aa",
     "0x10c4E72abd373295e613e3D2C2C5067d33a0e4a8",
     "0x744159757caC173A7A3eCf5e97ADB10d1a725377",
     "0xc931d9fefd06a8361d8057501f1ec522cf69c573",
@@ -124,6 +125,7 @@ wait_time_for_startup = 100
 use_websocket = true
 # custom_multicall_address
 pool_addresses = [
+    "0x46ce2c581857494181ab57299b10a79bd0e4a8a5",
     "0xabEeFbc1663C6bEF78E69a89Fad59f1ca2393344",
     "0x9E6A565C2322f8646F2653352e771738A0EE75a3",
     "0x1DDa8b6469df243971381f1f3F4137814ca68722",

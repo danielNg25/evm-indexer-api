@@ -1,5 +1,5 @@
 [package]
-name = "evm-dex-arbitrage"
+name = "evm-indexer"
 version = "0.1.0"
 edition = "2021"
 authors = ["Daniel"]
@@ -79,7 +79,7 @@ name = "evm_arb_bot"
 path = "src/lib.rs"
 
 [[bin]]
-name = "evm-dex-arbitrage"
+name = "evm-indexer"
 path = "bin/main.rs"
 
 [profile.release]
