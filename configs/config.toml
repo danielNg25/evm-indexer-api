@@ -6,11 +6,7 @@ rpc_urls = [
     "https://eth.llamarpc.com",
     "https://eth-mainnet.public.blastapi.io",
 ]
-websocket_urls = [
-    "wss://ethereum-rpc.publicnode.com",
-    "wss://eth.drpc.org",
-    # "wss://mainnet.gateway.tenderly.co",
-]
+websocket_urls = ["wss://ethereum-rpc.publicnode.com", "wss://eth.drpc.org"]
 start_block = 0
 max_blocks_per_batch = 1000
 wait_time_for_startup = 100
@@ -84,11 +80,14 @@ pools_with_type = []
 [[chains]]
 rpc_urls = [
     # "https://1rpc.io/bnb",
-    "https://binance-smart-chain-public.nodies.app",
+    # "https://binance-smart-chain-public.nodies.app",
+    # "https://bsc-dataseed2.bnbchain.org",
+    "https://sly-lively-water.bsc.quiknode.pro/2cb2f586bc9ac68d8b0c29e46a6005abd5f0425e",
+
 ]
 websocket_urls = ["wss://bsc-rpc.publicnode.com"]
 start_block = 0
-max_blocks_per_batch = 1000
+max_blocks_per_batch = 5
 wait_time_for_startup = 100
 use_websocket = true
 # custom_multicall_address
@@ -116,7 +115,6 @@ rpc_urls = [
 ]
 websocket_urls = [
     "wss://base-rpc.publicnode.com",
-    "wss://0xrpc.io/base",
     "wss://base.gateway.tenderly.co",
 ]
 start_block = 0
@@ -136,8 +134,8 @@ pools_with_type = []
 # Polygon
 [[chains]]
 rpc_urls = [
-    # "https://polygon-rpc.com",
-    "https://polygon-public.nodies.app",
+    "https://polygon-rpc.com",
+    # "https://polygon-public.nodies.app",
 ]
 websocket_urls = [
     "wss://polygon-bor-rpc.publicnode.com",
@@ -174,5 +172,54 @@ pool_addresses = [
     "0x712d30c0975386b043e09224433f400ea87cab7d",
     "0xbc5e26e6d36537145b3e5ed1dff537561094638f",
     "0x1Eb5fAc40c45361E63861E57cD5C5202e5246716",
+]
+pools_with_type = []
+
+
+# PEAQ
+[[chains]]
+rpc_urls = [
+    "https://quicknode1.peaq.xyz",
+    "https://quicknode2.peaq.xyz",
+    "https://quicknode3.peaq.xyz",
+]
+websocket_urls = ["wss://quicknode.peaq.xyz"]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = false
+# custom_multicall_address = "0x0c9A8dB3B6C58bC02b8473167b0062b543F3ED7f"
+pool_addresses = [
+    "0xd0b3fb450ccb8505cf154e5d1cbfd866e6ef04c1",
+    "0xbcc65019e507df0d636a443925827c04852ce6c8",
+    "0x1604d6d1e2d5f53a07ee6cc4f515119a128f0753",
+    "0xc25d83aa6a75b991399412a010e1d39ecc1970dc",
+]
+pools_with_type = []
+
+
+# FLARE
+[[chains]]
+rpc_urls = [
+    "https://rpc.ankr.com/flare",
+    "http://51.195.190.153:9650/ext/bc/C/rpc",
+    "http://3.12.130.98:9650/ext/bc/C/rpc",
+]
+websocket_urls = [
+    "ws://51.195.190.153:9650/ext/bc/C/ws",
+    "ws://51.89.97.113:9650/ext/bc/C/ws",
+    "ws://37.59.22.186:9650/ext/bc/C/ws",
+    "ws://3.23.213.135:9650/ext/bc/C/ws",
+    "ws://51.178.88.56:9650/ext/bc/C/ws",
+    "ws://3.12.130.98:9650/ext/bc/C/ws",
+]
+start_block = 0
+max_blocks_per_batch = 1000
+wait_time_for_startup = 100
+use_websocket = true
+# custom_multicall_address
+pool_addresses = [
+    "0xa7c9e7343bd8f1eb7000f25de5aeb52c6b78b1b7",
+    "0xa6ed1a04b9b6b0a6cf3926510546baf5bbe44e5e",
 ]
 pools_with_type = []
