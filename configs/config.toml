@@ -1,10 +1,10 @@
-db_path = "database"       # Path to the database for pool persistence
-load_snapshot_pool = false
+db_path = "database"      # Path to the database for pool persistence
+load_snapshot_pool = true
 
 [[chains]]
 rpc_urls = [
     "https://eth.llamarpc.com",
-    "https://eth-mainnet.public.blastapi.io",
+    # "https://eth-mainnet.public.blastapi.io",
 ]
 websocket_urls = ["wss://ethereum-rpc.publicnode.com", "wss://eth.drpc.org"]
 start_block = 0
@@ -88,7 +88,7 @@ rpc_urls = [
 websocket_urls = ["wss://bsc-rpc.publicnode.com"]
 start_block = 0
 max_blocks_per_batch = 5
-wait_time_for_startup = 100
+wait_time_for_startup = 1000
 use_websocket = true
 # custom_multicall_address
 pool_addresses = [
@@ -133,10 +133,7 @@ pools_with_type = []
 
 # Polygon
 [[chains]]
-rpc_urls = [
-    "https://polygon-rpc.com",
-    # "https://polygon-public.nodies.app",
-]
+rpc_urls = ["https://polygon-rpc.com", "https://polygon.therpc.io"]
 websocket_urls = [
     "wss://polygon-bor-rpc.publicnode.com",
     "wss://polygon.gateway.tenderly.co",
@@ -172,6 +169,7 @@ pool_addresses = [
     "0x712d30c0975386b043e09224433f400ea87cab7d",
     "0xbc5e26e6d36537145b3e5ed1dff537561094638f",
     "0x1Eb5fAc40c45361E63861E57cD5C5202e5246716",
+    "0x5854b550482dc2785c9c4ecdb235076b5e1d75b7",
 ]
 pools_with_type = []
 
@@ -201,7 +199,7 @@ pools_with_type = []
 # FLARE
 [[chains]]
 rpc_urls = [
-    "https://rpc.ankr.com/flare",
+    # "https://rpc.ankr.com/flare",
     "http://51.195.190.153:9650/ext/bc/C/rpc",
     "http://3.12.130.98:9650/ext/bc/C/rpc",
 ]
