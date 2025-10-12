@@ -1,12 +1,14 @@
 db_path = "database"      # Path to the database for pool persistence
 load_snapshot_pool = true
 
-[[chains]]
 rpc_urls = [
-    "https://eth.llamarpc.com",
-    # "https://eth-mainnet.public.blastapi.io",
+    #    "https://eth.llamarpc.com",
+    "https://eth-mainnet.public.blastapi.io",
+    "https://eth-mainnet.nodereal.io/v1/1659dfb40aa24bbb8153a677b98064d7",
+    # "https://ethereum-rpc.publicnode.com"
+    #    "https://eth.rpc.blxrbdn.com"
 ]
-websocket_urls = ["wss://ethereum-rpc.publicnode.com", "wss://eth.drpc.org"]
+websocket_urls = ["wss://0xrpc.io/eth", "wss://eth.drpc.org"]
 start_block = 0
 max_blocks_per_batch = 1000
 wait_time_for_startup = 100
