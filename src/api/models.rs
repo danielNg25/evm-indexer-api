@@ -2,7 +2,7 @@ use alloy::primitives::U256;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct QuoteRequest {
+pub struct QuoteRequestWithPool {
     pub network_id: u64,
     pub pool: String,              // Address as string
     pub token_in: Option<String>,  // Address as string
@@ -11,9 +11,17 @@ pub struct QuoteRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BatchQuoteRequest {
+pub struct BatchQuoteRequestWithPool {
     pub network_id: u64,
     pub pool: String,              // Address as string
+    pub token_in: Option<String>,  // Address as string
+    pub token_out: Option<String>, // Address as string
+    pub amounts: Vec<String>, // Array of amounts as strings (for token amounts) or hex (for raw amounts)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BatchQuoteRequest {
+    pub network_id: u64,
     pub token_in: Option<String>,  // Address as string
     pub token_out: Option<String>, // Address as string
     pub amounts: Vec<String>, // Array of amounts as strings (for token amounts) or hex (for raw amounts)

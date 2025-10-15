@@ -221,7 +221,6 @@ Calculates the input amounts needed for given output amounts using raw token amo
 
 ```json
 curl -X POST http://localhost:3001/quote/batch/amount-in/raw -H "Content-Type: application/json" \
-
 -d '{
     "network_id": 1,
     "pool": "0x10c4E72abd373295e613e3D2C2C5067d33a0e4a8",

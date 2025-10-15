@@ -1,6 +1,7 @@
-db_path = "database"      # Path to the database for pool persistence
-load_snapshot_pool = true
+db_path = "database"       # Path to the database for pool persistence
+load_snapshot_pool = false
 
+[[chains]]
 rpc_urls = [
     #    "https://eth.llamarpc.com",
     "https://eth-mainnet.public.blastapi.io",
@@ -87,7 +88,10 @@ rpc_urls = [
     "https://sly-lively-water.bsc.quiknode.pro/2cb2f586bc9ac68d8b0c29e46a6005abd5f0425e",
 
 ]
-websocket_urls = ["wss://bsc-rpc.publicnode.com"]
+websocket_urls = [
+    "wss://bsc-rpc.publicnode.com",
+    "wss://bsc-mainnet.infura.io/ws/v3/dbb4ba9a80b745c184456909176f7433",
+]
 start_block = 0
 max_blocks_per_batch = 5
 wait_time_for_startup = 1000
@@ -209,9 +213,7 @@ websocket_urls = [
     "ws://51.195.190.153:9650/ext/bc/C/ws",
     "ws://51.89.97.113:9650/ext/bc/C/ws",
     "ws://37.59.22.186:9650/ext/bc/C/ws",
-    "ws://3.23.213.135:9650/ext/bc/C/ws",
     "ws://51.178.88.56:9650/ext/bc/C/ws",
-    "ws://3.12.130.98:9650/ext/bc/C/ws",
 ]
 start_block = 0
 max_blocks_per_batch = 1000

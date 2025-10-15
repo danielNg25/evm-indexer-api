@@ -14,6 +14,7 @@ use tokio::sync::RwLock;
 pub struct PoolRegistry {
     by_address: Arc<RwLock<HashMap<Address, Arc<RwLock<Box<dyn PoolInterface + Send + Sync>>>>>>,
     by_type: Arc<RwLock<HashMap<PoolType, Vec<Address>>>>,
+    token_graph: Arc<RwLock<HashMap<Address, HashMap<Address, Vec<Address>>>>>, // New: token -> neighbor -> pools
     last_processed_block: Arc<RwLock<u64>>,
     topics: Arc<RwLock<Vec<Topic>>>,
     profitable_topics: Arc<RwLock<HashSet<Topic>>>,
@@ -25,6 +26,7 @@ impl PoolRegistry {
         Self {
             by_address: Arc::new(RwLock::new(HashMap::new())),
             by_type: Arc::new(RwLock::new(HashMap::new())),
+            token_graph: Arc::new(RwLock::new(HashMap::new())), // Initialize token_graph
             last_processed_block: Arc::new(RwLock::new(0)),
             topics: Arc::new(RwLock::new(Vec::new())),
             profitable_topics: Arc::new(RwLock::new(HashSet::new())),
@@ -51,6 +53,7 @@ impl PoolRegistry {
         let address = pool.address();
         let pool_type = pool.pool_type();
 
+        let (token0, token1) = pool.tokens();
         // Add to address map
         let mut address_map = self.by_address.write().await;
         address_map.insert(address, Arc::new(RwLock::new(pool)));
@@ -59,6 +62,22 @@ impl PoolRegistry {
         let mut type_map = self.by_type.write().await;
         type_map
             .entry(pool_type)
+            .or_insert_with(Vec::new)
+            .push(address);
+
+        // Add to token_graph (bidirectional edges)
+
+        let mut token_graph = self.token_graph.write().await;
+        token_graph
+            .entry(token0)
+            .or_insert_with(HashMap::new)
+            .entry(token1)
+            .or_insert_with(Vec::new)
+            .push(address);
+        token_graph
+            .entry(token1)
+            .or_insert_with(HashMap::new)
+            .entry(token0)
             .or_insert_with(Vec::new)
             .push(address);
     }
@@ -86,6 +105,33 @@ impl PoolRegistry {
             addresses.retain(|&a| a != address);
             if addresses.is_empty() {
                 type_map.remove(&pool_type);
+            }
+        }
+
+        // Remove from token_graph
+        let (token0, token1) = pool.read().await.tokens();
+
+        let mut token_graph = self.token_graph.write().await;
+        if let Some(neighbors) = token_graph.get_mut(&token0) {
+            if let Some(pools) = neighbors.get_mut(&token1) {
+                pools.retain(|&a| a != address);
+                if pools.is_empty() {
+                    neighbors.remove(&token1);
+                }
+            }
+            if neighbors.is_empty() {
+                token_graph.remove(&token0);
+            }
+        }
+        if let Some(neighbors) = token_graph.get_mut(&token1) {
+            if let Some(pools) = neighbors.get_mut(&token0) {
+                pools.retain(|&a| a != address);
+                if pools.is_empty() {
+                    neighbors.remove(&token0);
+                }
+            }
+            if neighbors.is_empty() {
+                token_graph.remove(&token1);
             }
         }
 
@@ -299,6 +345,83 @@ impl PoolRegistry {
     pub async fn get_profitable_topics(&self) -> HashSet<Topic> {
         self.profitable_topics.read().await.clone()
     }
+
+    pub async fn get_all_path_from_token_to_token(
+        &self,
+        token0: Address,
+        token1: Address,
+        max_hop: usize,
+    ) -> Vec<Vec<Address>> {
+        if token0 == token1 || max_hop == 0 {
+            return vec![];
+        }
+
+        let token_graph = self.token_graph.read().await;
+        let mut all_paths = vec![];
+        let mut current_path = vec![];
+        let mut visited = HashSet::new();
+
+        // First, get all possible paths
+        Self::dfs(
+            &token_graph,
+            token0,
+            token1,
+            &mut current_path,
+            &mut visited,
+            &mut all_paths,
+            0,
+            max_hop,
+        );
+
+        all_paths
+    }
+
+    fn dfs(
+        token_graph: &HashMap<Address, HashMap<Address, Vec<Address>>>,
+        current: Address,
+        target: Address,
+        path: &mut Vec<Address>,
+        visited: &mut HashSet<Address>,
+        paths: &mut Vec<Vec<Address>>,
+        hops: usize,
+        max_hop: usize,
+    ) {
+        if hops > max_hop {
+            return;
+        }
+
+        if current == target && !path.is_empty() {
+            paths.push(path.clone());
+            return;
+        }
+
+        visited.insert(current);
+
+        if let Some(neighbors) = token_graph.get(&current) {
+            for (&neighbor, pool_list) in neighbors {
+                if visited.contains(&neighbor) {
+                    continue; // Avoid cycles
+                }
+
+                for &pool in pool_list {
+                    path.push(pool);
+                    Self::dfs(
+                        token_graph,
+                        neighbor,
+                        target,
+                        path,
+                        visited,
+                        paths,
+                        hops + 1,
+                        max_hop,
+                    );
+                    path.pop();
+                }
+            }
+        }
+
+        visited.remove(&current);
+    }
 }
 
 impl Clone for PoolRegistry {
@@ -307,6 +430,7 @@ impl Clone for PoolRegistry {
             by_address: Arc::clone(&self.by_address),
             by_type: Arc::clone(&self.by_type),
             last_processed_block: Arc::clone(&self.last_processed_block),
+            token_graph: Arc::clone(&self.token_graph),
             topics: Arc::clone(&self.topics),
             profitable_topics: Arc::clone(&self.profitable_topics),
             network_id: self.network_id.clone(),

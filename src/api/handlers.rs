@@ -6,11 +6,15 @@ use axum::{
 };
 use std::sync::Arc;
 
-use crate::api::models::{
-    BatchQuoteRequest, BatchQuoteResponse, HealthResponse, NetworksResponse, PoolsResponse,
-    QuoteRequest, QuoteResponse, TokenInfo, TokensResponse,
-};
 use crate::core::proccessor::Proccessor;
+use crate::{
+    api::models::{
+        BatchQuoteRequest, BatchQuoteRequestWithPool, BatchQuoteResponse, HealthResponse,
+        NetworksResponse, PoolsResponse, QuoteRequestWithPool, QuoteResponse, TokenInfo,
+        TokensResponse,
+    },
+    core::proccessor::QuoteType,
+};
 
 // Helper function to parse token address from optional string
 fn parse_token_address(token_str: Option<String>) -> Result<Address, StatusCode> {
@@ -42,9 +46,6 @@ fn validate_batch_token_input(
     token_out: &Option<String>,
 ) -> Result<(), BatchQuoteResponse> {
     match (token_in, token_out) {
-        (Some(_), Some(_)) => Err(BatchQuoteResponse::error(
-            "Only one of token_in or token_out should be provided".to_string(),
-        )),
         (None, None) => Err(BatchQuoteResponse::error(
             "Either token_in or token_out is required".to_string(),
         )),
@@ -61,7 +62,7 @@ pub async fn health_check() -> Json<HealthResponse> {
 
 pub async fn quote_amount_in_raw(
     State(processor): State<Arc<Proccessor>>,
-    Json(request): Json<QuoteRequest>,
+    Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -99,7 +100,7 @@ pub async fn quote_amount_in_raw(
 
 pub async fn quote_amount_in_token(
     State(processor): State<Arc<Proccessor>>,
-    Json(request): Json<QuoteRequest>,
+    Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -132,7 +133,7 @@ pub async fn quote_amount_in_token(
 
 pub async fn quote_amount_out_raw(
     State(processor): State<Arc<Proccessor>>,
-    Json(request): Json<QuoteRequest>,
+    Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -170,7 +171,7 @@ pub async fn quote_amount_out_raw(
 
 pub async fn quote_amount_out_token(
     State(processor): State<Arc<Proccessor>>,
-    Json(request): Json<QuoteRequest>,
+    Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -202,9 +203,9 @@ pub async fn quote_amount_out_token(
 }
 
 // Batch quote handlers
-pub async fn batch_quote_amount_in_raw(
+pub async fn batch_quote_amount_in_raw_with_pool(
     State(processor): State<Arc<Proccessor>>,
-    Json(request): Json<BatchQuoteRequest>,
+    Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -261,9 +262,76 @@ pub async fn batch_quote_amount_in_raw(
     Ok(Json(BatchQuoteResponse::success(results)))
 }
 
-pub async fn batch_quote_amount_in_token(
+// Batch quote handlers
+pub async fn batch_quote_amount_in_raw(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequest>,
+) -> Result<Json<BatchQuoteResponse>, StatusCode> {
+    // Validate token input
+    if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
+        return Ok(Json(error_response));
+    }
+
+    // Parse all amounts as decimal
+    let amounts: Result<Vec<U256>, StatusCode> = request
+        .amounts
+        .iter()
+        .map(|amount_str| {
+            amount_str
+                .parse::<U256>()
+                .map_err(|_| StatusCode::BAD_REQUEST)
+        })
+        .collect();
+
+    let amounts = amounts?;
+
+    let token_in = parse_token_address(request.token_in)?;
+    let token_out = parse_token_address(request.token_out)?;
+    let paths = processor
+        .pool_registry()
+        .get_pool_registry(request.network_id)
+        .await
+        .ok_or(StatusCode::NOT_FOUND)?
+        .get_all_path_from_token_to_token(token_in, token_out, 3)
+        .await;
+
+    let mut results = Vec::new();
+    for amount in amounts {
+        let mut best_result = U256::MAX;
+        for path in &paths {
+            match processor
+                .quote_amount_token_with_path_raw(
+                    request.network_id,
+                    &path,
+                    amount,
+                    &QuoteType::ExactOut,
+                    token_in,
+                    token_out,
+                )
+                .await
+            {
+                Ok(result) => {
+                    let input_amount = result
+                        .input
+                        .amount
+                        .parse::<U256>()
+                        .map_err(|_| StatusCode::BAD_REQUEST)?;
+                    if input_amount < best_result {
+                        best_result = input_amount;
+                    }
+                }
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results.push(best_result);
+    }
+
+    Ok(Json(BatchQuoteResponse::success(results)))
+}
+
+pub async fn batch_quote_amount_in_token_with_pool(
+    State(processor): State<Arc<Proccessor>>,
+    Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -307,9 +375,9 @@ pub async fn batch_quote_amount_in_token(
     Ok(Json(BatchQuoteResponse::success(results)))
 }
 
-pub async fn batch_quote_amount_out_raw(
+pub async fn batch_quote_amount_out_raw_with_pool(
     State(processor): State<Arc<Proccessor>>,
-    Json(request): Json<BatchQuoteRequest>,
+    Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
@@ -366,9 +434,76 @@ pub async fn batch_quote_amount_out_raw(
     Ok(Json(BatchQuoteResponse::success(results)))
 }
 
-pub async fn batch_quote_amount_out_token(
+// Batch quote handlers
+pub async fn batch_quote_amount_out_raw(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequest>,
+) -> Result<Json<BatchQuoteResponse>, StatusCode> {
+    // Validate token input
+    if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
+        return Ok(Json(error_response));
+    }
+
+    // Parse all amounts as decimal
+    let amounts: Result<Vec<U256>, StatusCode> = request
+        .amounts
+        .iter()
+        .map(|amount_str| {
+            amount_str
+                .parse::<U256>()
+                .map_err(|_| StatusCode::BAD_REQUEST)
+        })
+        .collect();
+
+    let amounts = amounts?;
+
+    let token_in = parse_token_address(request.token_in)?;
+    let token_out = parse_token_address(request.token_out)?;
+    let paths = processor
+        .pool_registry()
+        .get_pool_registry(request.network_id)
+        .await
+        .ok_or(StatusCode::NOT_FOUND)?
+        .get_all_path_from_token_to_token(token_in, token_out, 3)
+        .await;
+
+    let mut results = Vec::new();
+    for amount in amounts {
+        let mut best_result = U256::ZERO;
+        for path in &paths {
+            match processor
+                .quote_amount_token_with_path_raw(
+                    request.network_id,
+                    &path,
+                    amount,
+                    &QuoteType::ExactIn,
+                    token_in,
+                    token_out,
+                )
+                .await
+            {
+                Ok(result) => {
+                    let output_amount = result
+                        .output
+                        .amount
+                        .parse::<U256>()
+                        .map_err(|_| StatusCode::BAD_REQUEST)?;
+                    if output_amount > best_result {
+                        best_result = output_amount;
+                    }
+                }
+                Err(e) => return Ok(Json(BatchQuoteResponse::error(e.to_string()))),
+            }
+        }
+        results.push(best_result);
+    }
+
+    Ok(Json(BatchQuoteResponse::success(results)))
+}
+
+pub async fn batch_quote_amount_out_token_with_pool(
+    State(processor): State<Arc<Proccessor>>,
+    Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
     let pool_address = request
         .pool
