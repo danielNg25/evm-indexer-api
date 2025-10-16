@@ -87,7 +87,7 @@ rpc_urls = [
     # "https://binance-smart-chain-public.nodies.app",
     # "https://bsc-dataseed2.bnbchain.org",
     "https://sly-lively-water.bsc.quiknode.pro/2cb2f586bc9ac68d8b0c29e46a6005abd5f0425e",
-
+    "https://bsc.drpc.org",
 ]
 websocket_urls = [
     "wss://bsc-rpc.publicnode.com",
