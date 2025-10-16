@@ -3,7 +3,7 @@ use crate::models::pool::PoolRegistry;
 use alloy::eips::BlockNumberOrTag;
 use alloy::providers::Provider;
 use anyhow::Result;
-use log::{error, info};
+use log::{debug, error, info};
 use std::collections::HashSet;
 use std::sync::Arc;
 use tokio::time::Duration;
@@ -186,7 +186,7 @@ impl<P: Provider + Send + Sync + 'static> PoolUpdaterLatestBlockWs<P> {
             }
             let events_len = events.len();
 
-            info!(
+            debug!(
                 "CHAIN ID: {} Processing {} events from EventQueue",
                 self.network_id, events_len
             );

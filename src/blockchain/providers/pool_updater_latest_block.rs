@@ -182,7 +182,7 @@ async fn proccess_pools<P: Provider + Send + Sync + 'static>(
         {
             Ok(events) => {
                 // let mut swap_events = Vec::new();
-                info!(
+                debug!(
                     "CHAIN ID: {} Processing {} events from {} to {}",
                     network_id,
                     events.len(),

@@ -74,7 +74,7 @@ impl EventQueue {
         let mut events = Vec::new();
 
         while let Ok(event) = receiver.try_recv() {
-            info!(
+            debug!(
                 "Received event: tx={}, log_index={}",
                 event.transaction_hash.unwrap_or_default(),
                 event.log_index.unwrap_or_default()

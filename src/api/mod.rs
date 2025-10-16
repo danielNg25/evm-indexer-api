@@ -53,5 +53,9 @@ pub fn create_router(processor: Arc<Proccessor>) -> Router {
             "/quote/batch/amount-out/path/raw",
             post(handlers::batch_quote_amount_out_raw),
         )
+        .route(
+            "/quote/batch/amount-out/pools/raw",
+            post(handlers::batch_quote_amount_out_token_with_pools),
+        )
         .with_state(processor)
 }
