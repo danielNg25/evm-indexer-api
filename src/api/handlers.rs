@@ -6,6 +6,7 @@ use axum::{
 };
 use log::info;
 use std::sync::Arc;
+use std::time::Instant;
 
 use crate::{
     api::models::{
@@ -59,18 +60,20 @@ fn validate_batch_token_input(
 }
 
 pub async fn health_check() -> Json<HealthResponse> {
-    info!("Received request: GET /health");
-    Json(HealthResponse {
+    let start = Instant::now();
+    let result = Json(HealthResponse {
         status: "ok".to_string(),
         message: "EVM Arbitrage Bot API is running".to_string(),
-    })
+    });
+    info!("GET /health completed in {:?}", start.elapsed());
+    result
 }
 
 pub async fn quote_amount_in_raw(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/amount-in/raw");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -99,17 +102,22 @@ pub async fn quote_amount_in_raw(
             .await
     };
 
-    match result {
+    let response = match result {
         Ok(amount) => Ok(Json(QuoteResponse::success(amount))),
         Err(e) => Ok(Json(QuoteResponse::error(e.to_string()))),
-    }
+    };
+    info!(
+        "POST /quote/amount-in/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn quote_amount_in_token(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/amount-in/token");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -133,17 +141,22 @@ pub async fn quote_amount_in_token(
             .await
     };
 
-    match result {
+    let response = match result {
         Ok(amount) => Ok(Json(QuoteResponse::success(amount))),
         Err(e) => Ok(Json(QuoteResponse::error(e.to_string()))),
-    }
+    };
+    info!(
+        "POST /quote/amount-in/token completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn quote_amount_out_raw(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/amount-out/raw");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -172,17 +185,22 @@ pub async fn quote_amount_out_raw(
             .await
     };
 
-    match result {
+    let response = match result {
         Ok(amount) => Ok(Json(QuoteResponse::success(amount))),
         Err(e) => Ok(Json(QuoteResponse::error(e.to_string()))),
-    }
+    };
+    info!(
+        "POST /quote/amount-out/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn quote_amount_out_token(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<QuoteRequestWithPool>,
 ) -> Result<Json<QuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/amount-out/token");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -206,10 +224,15 @@ pub async fn quote_amount_out_token(
             .await
     };
 
-    match result {
+    let response = match result {
         Ok(amount) => Ok(Json(QuoteResponse::success(amount))),
         Err(e) => Ok(Json(QuoteResponse::error(e.to_string()))),
-    }
+    };
+    info!(
+        "POST /quote/amount-out/token completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 // Batch quote handlers
@@ -217,7 +240,7 @@ pub async fn batch_quote_amount_in_raw_with_pool(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-in/raw");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -270,7 +293,12 @@ pub async fn batch_quote_amount_in_raw_with_pool(
         results
     };
 
-    Ok(Json(BatchQuoteResponse::success(results)))
+    let response = Ok(Json(BatchQuoteResponse::success(results)));
+    info!(
+        "POST /quote/batch/amount-in/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 // Batch quote handlers
@@ -278,7 +306,7 @@ pub async fn batch_quote_amount_in_raw(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequest>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-in/path/raw");
+    let start = Instant::now();
     // Validate token input
     if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
         return Ok(Json(error_response));
@@ -338,14 +366,19 @@ pub async fn batch_quote_amount_in_raw(
         results.push(best_result);
     }
 
-    Ok(Json(BatchQuoteResponse::success(results)))
+    let response = Ok(Json(BatchQuoteResponse::success(results)));
+    info!(
+        "POST /quote/batch/amount-in/path/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn batch_quote_amount_in_token_with_pool(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-in/token");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -385,14 +418,19 @@ pub async fn batch_quote_amount_in_token_with_pool(
         results
     };
 
-    Ok(Json(BatchQuoteResponse::success(results)))
+    let response = Ok(Json(BatchQuoteResponse::success(results)));
+    info!(
+        "POST /quote/batch/amount-in/token completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn batch_quote_amount_out_raw_with_pool(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-out/raw");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -445,7 +483,12 @@ pub async fn batch_quote_amount_out_raw_with_pool(
         results
     };
 
-    Ok(Json(BatchQuoteResponse::success(results)))
+    let response = Ok(Json(BatchQuoteResponse::success(results)));
+    info!(
+        "POST /quote/batch/amount-out/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 // Batch quote handlers
@@ -453,7 +496,7 @@ pub async fn batch_quote_amount_out_raw(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequest>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-out/path/raw");
+    let start = Instant::now();
     // Validate token input
     if let Err(error_response) = validate_batch_token_input(&request.token_in, &request.token_out) {
         return Ok(Json(error_response));
@@ -513,14 +556,19 @@ pub async fn batch_quote_amount_out_raw(
         results.push(best_result);
     }
 
-    Ok(Json(BatchQuoteResponse::success(results)))
+    let response = Ok(Json(BatchQuoteResponse::success(results)));
+    info!(
+        "POST /quote/batch/amount-out/path/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn batch_quote_amount_out_token_with_pools(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequestWithPools>,
 ) -> Result<Json<BatchQuoteResponseWithSteps>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-out/pools/raw");
+    let start = Instant::now();
     // Parse all amounts as decimal
     let first_pool = request.pools.first().unwrap();
     let token_in = parse_token_address(Some(first_pool.token_in.clone()))?;
@@ -614,19 +662,24 @@ pub async fn batch_quote_amount_out_token_with_pools(
         steps.push(amounts.clone());
     }
 
-    Ok(Json(BatchQuoteResponseWithSteps::success(
+    let response = Ok(Json(BatchQuoteResponseWithSteps::success(
         amounts,
         steps,
         step_tokens,
         step_decimals,
-    )))
+    )));
+    info!(
+        "POST /quote/batch/amount-out/pools/raw completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn batch_quote_amount_out_token_with_pool(
     State(processor): State<Arc<Proccessor>>,
     Json(request): Json<BatchQuoteRequestWithPool>,
 ) -> Result<Json<BatchQuoteResponse>, StatusCode> {
-    info!("Received request: POST /quote/batch/amount-out/token");
+    let start = Instant::now();
     let pool_address = request
         .pool
         .parse::<Address>()
@@ -666,26 +719,33 @@ pub async fn batch_quote_amount_out_token_with_pool(
         results
     };
 
-    Ok(Json(BatchQuoteResponse::success(results)))
+    let response = Ok(Json(BatchQuoteResponse::success(results)));
+    info!(
+        "POST /quote/batch/amount-out/token completed in {:?}",
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn get_networks(
     State(processor): State<Arc<Proccessor>>,
 ) -> Result<Json<NetworksResponse>, StatusCode> {
-    info!("Received request: GET /networks");
+    let start = Instant::now();
     let networks = processor.pool_registry().get_all_network_ids().await;
 
-    Ok(Json(NetworksResponse {
+    let response = Ok(Json(NetworksResponse {
         networks: networks.clone(),
         total_networks: networks.len(),
-    }))
+    }));
+    info!("GET /networks completed in {:?}", start.elapsed());
+    response
 }
 
 pub async fn get_pools(
     State(processor): State<Arc<Proccessor>>,
     Path(network_id): Path<u64>,
 ) -> Result<Json<PoolsResponse>, StatusCode> {
-    info!("Received request: GET /networks/{}/pools", network_id);
+    let start = Instant::now();
     let pool_registry = processor
         .pool_registry()
         .get_pool_registry(network_id)
@@ -698,18 +758,24 @@ pub async fn get_pools(
         .map(|addr| format!("{:?}", addr))
         .collect();
 
-    Ok(Json(PoolsResponse {
+    let response = Ok(Json(PoolsResponse {
         network_id,
         pools: pool_strings.clone(),
         total_pools: pool_strings.len(),
-    }))
+    }));
+    info!(
+        "GET /networks/{}/pools completed in {:?}",
+        network_id,
+        start.elapsed()
+    );
+    response
 }
 
 pub async fn get_tokens(
     State(processor): State<Arc<Proccessor>>,
     Path(network_id): Path<u64>,
 ) -> Result<Json<TokensResponse>, StatusCode> {
-    info!("Received request: GET /networks/{}/tokens", network_id);
+    let start = Instant::now();
     let token_registry = processor
         .token_registry()
         .get_token_registry(network_id)
@@ -728,9 +794,15 @@ pub async fn get_tokens(
         })
         .collect();
 
-    Ok(Json(TokensResponse {
+    let response = Ok(Json(TokensResponse {
         network_id,
         tokens: token_infos.clone(),
         total_tokens: token_infos.len(),
-    }))
+    }));
+    info!(
+        "GET /networks/{}/tokens completed in {:?}",
+        network_id,
+        start.elapsed()
+    );
+    response
 }

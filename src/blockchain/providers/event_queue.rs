@@ -1,7 +1,7 @@
 use alloy::primitives::TxHash;
 use alloy::rpc::types::Log;
 use anyhow::{anyhow, Result};
-use log::{debug, info};
+use log::{debug};
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
@@ -152,7 +152,7 @@ impl EventSender {
 
             recent_events.insert(key, event.clone());
             event_order.push_back(key);
-            info!(
+            debug!(
                 "Added event to recent_events: tx={}, log_index={}",
                 transaction_hash, log_index
             );
