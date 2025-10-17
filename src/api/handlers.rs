@@ -7,6 +7,7 @@ use axum::{
 use log::info;
 use std::sync::Arc;
 use std::time::Instant;
+use tokio::task::JoinSet;
 
 use crate::{
     api::models::{
@@ -621,14 +622,33 @@ pub async fn batch_quote_amount_out_token_with_pools(
             }
         }
 
-        let mut step_amounts = Vec::new();
-        for amount in amounts {
-            match processor
-                .quote_amount_out_token_in_raw(pool.network_id, pool_address, pool_token_in, amount)
-                .await
-            {
-                Ok(result) => {
-                    step_amounts.push(result);
+        // Process all quotes for this pool in parallel
+        let mut step_amounts = vec![U256::ZERO; amounts.len()];
+        let mut join_set = JoinSet::new();
+
+        for (index, amount) in amounts.iter().enumerate() {
+            let processor_clone = Arc::clone(&processor);
+            let amount = *amount;
+            join_set.spawn(async move {
+                let result = processor_clone
+                    .quote_amount_out_token_in_raw(
+                        pool.network_id,
+                        pool_address,
+                        pool_token_in,
+                        amount,
+                    )
+                    .await;
+                (index, result)
+            });
+        }
+
+        while let Some(result) = join_set.join_next().await {
+            match result {
+                Ok((index, Ok(quote_result))) => {
+                    step_amounts[index] = quote_result;
+                }
+                Ok((_, Err(e))) => {
+                    return Ok(Json(BatchQuoteResponseWithSteps::error(e.to_string())))
                 }
                 Err(e) => return Ok(Json(BatchQuoteResponseWithSteps::error(e.to_string()))),
             }
