@@ -83,10 +83,10 @@ pools_with_type = []
 # BNB
 [[chains]]
 rpc_urls = [
-    # "https://1rpc.io/bnb",
-    # "https://binance-smart-chain-public.nodies.app",
-    # "https://bsc-dataseed2.bnbchain.org",
-    "https://sly-lively-water.bsc.quiknode.pro/2cb2f586bc9ac68d8b0c29e46a6005abd5f0425e",
+    "https://1rpc.io/bnb",
+    "https://binance-smart-chain-public.nodies.app",
+    "https://bsc-dataseed2.bnbchain.org",
+    # "https://sly-lively-water.bsc.quiknode.pro/2cb2f586bc9ac68d8b0c29e46a6005abd5f0425e",
     "https://bsc.drpc.org",
 ]
 websocket_urls = [
@@ -96,7 +96,7 @@ websocket_urls = [
 start_block = 0
 max_blocks_per_batch = 5
 wait_time_for_startup = 1000
-use_websocket = true
+use_websocket = false
 # custom_multicall_address
 pool_addresses = [
     "0xc20db9d8f3b55a174a1ad2e90572de2256c3562a",

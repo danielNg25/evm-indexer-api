@@ -68,8 +68,8 @@ impl<P: Provider + Send + Sync + 'static> PoolUpdaterLatestBlock<P> {
     pub async fn start(&mut self) -> Result<()> {
         loop {
             // Get latest block number with retry logic
-            let mut backoff = Duration::from_millis(50);
-            let max_backoff = Duration::from_millis(500);
+            let mut backoff = Duration::from_millis(500);
+            let max_backoff = Duration::from_millis(1000);
             let latest_block = loop {
                 match self.provider.get_block_number().await {
                     Ok(block) => {
@@ -98,7 +98,7 @@ impl<P: Provider + Send + Sync + 'static> PoolUpdaterLatestBlock<P> {
                     "Waiting for new blocks. Current: {}, Latest: {}",
                     current_block, latest_block
                 );
-                tokio::time::sleep(Duration::from_millis(50)).await;
+                tokio::time::sleep(Duration::from_millis(500)).await;
                 continue;
             }
 
@@ -143,7 +143,7 @@ impl<P: Provider + Send + Sync + 'static> PoolUpdaterLatestBlock<P> {
             }
 
             // Add a small delay between iterations to prevent tight loops
-            tokio::time::sleep(Duration::from_millis(50)).await;
+            tokio::time::sleep(Duration::from_millis(500)).await;
         }
     }
 }
@@ -166,8 +166,8 @@ async fn proccess_pools<P: Provider + Send + Sync + 'static>(
         return Ok(());
     }
 
-    let mut backoff = Duration::from_millis(50);
-    let max_backoff = Duration::from_millis(500);
+    let mut backoff = Duration::from_millis(500);
+    let max_backoff = Duration::from_millis(1000);
 
     let topics = topics.clone().to_vec();
     loop {
