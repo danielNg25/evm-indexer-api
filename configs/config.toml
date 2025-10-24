@@ -144,22 +144,22 @@ pools_with_type = []
 
 
 # Polygon
-[[chains]]
-rpc_urls = ["https://polygon-rpc.com", "https://polygon.therpc.io"]
-websocket_urls = [
-    "wss://polygon-bor-rpc.publicnode.com",
-    "wss://polygon.gateway.tenderly.co",
-]
-start_block = 0
-max_blocks_per_batch = 1000
-wait_time_for_startup = 100
-use_websocket = true
-# custom_multicall_address
-pool_addresses = [
-    "0x945695Ce6B1Be8267140db26f06fa16bA103DB5e",
-    "0x2e7a8cf6F87eD2C04Fb4CF2913626a2b3a4052e3",
-]
-pools_with_type = []
+# [[chains]]
+# rpc_urls = ["https://polygon-rpc.com", "https://polygon.therpc.io"]
+# websocket_urls = [
+#     "wss://polygon-bor-rpc.publicnode.com",
+#     "wss://polygon.gateway.tenderly.co",
+# ]
+# start_block = 0
+# max_blocks_per_batch = 1000
+# wait_time_for_startup = 100
+# use_websocket = true
+# # custom_multicall_address
+# pool_addresses = [
+#     "0x945695Ce6B1Be8267140db26f06fa16bA103DB5e",
+#     "0x2e7a8cf6F87eD2C04Fb4CF2913626a2b3a4052e3",
+# ]
+# pools_with_type = []
 
 
 # XDC
