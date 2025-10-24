@@ -245,21 +245,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize all chains concurrently for faster startup
     let mut chain_handles = Vec::new();
 
-    for chain_config in config.chain_configs {
+    for (_chain_index, chain_config) in config.chain_configs.into_iter().enumerate() {
+        let first_rpc = chain_config.rpc_urls.first().unwrap().clone();
         let multichain_pool_registry = multichain_pool_registry.clone();
         let multichain_token_registry = multichain_token_registry.clone();
         let db = db.clone();
         let should_load_snapshot_pool = config.database.load_snapshot_pool.unwrap_or(false);
 
         let handle = tokio::spawn(async move {
-            initialize_chain(
+            let result = initialize_chain(
                 chain_config,
                 multichain_pool_registry,
                 multichain_token_registry,
                 db,
                 should_load_snapshot_pool,
             )
-            .await
+            .await;
+            (first_rpc, result)
         });
 
         chain_handles.push(handle);
@@ -268,9 +270,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Wait for all chains to initialize
     info!("Waiting for all chains to initialize...");
     for handle in chain_handles {
-        if let Err(e) = handle.await? {
-            error!("Chain initialization failed: {}", e);
-            return Err(e.into());
+        match handle.await? {
+            (first_rpc, Ok(())) => {
+                info!("Chain {} initialized successfully", first_rpc);
+            }
+            (first_rpc, Err(e)) => {
+                error!("Chain {} initialization failed: {}", first_rpc, e);
+                return Err(e.into());
+            }
         }
     }
     info!("All chains initialized successfully!");
