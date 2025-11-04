@@ -122,7 +122,7 @@ pools_with_type = []
 rpc_urls = [
     "https://base.llamarpc.com",
     "https://mainnet.base.org",
-    "https://base.gateway.tenderly.co",
+    #"https://base.gateway.tenderly.co",
 ]
 websocket_urls = [
     "wss://base-rpc.publicnode.com",
@@ -131,7 +131,7 @@ websocket_urls = [
 start_block = 0
 max_blocks_per_batch = 1000
 wait_time_for_startup = 100
-use_websocket = true
+use_websocket = false
 # custom_multicall_address
 pool_addresses = [
     "0x46ce2c581857494181ab57299b10a79bd0e4a8a5",
@@ -172,7 +172,7 @@ websocket_urls = ["wss://rpc.xdcrpc.com/ws", "wss://erpc.xdcrpc.com/ws"]
 start_block = 0
 max_blocks_per_batch = 1000
 wait_time_for_startup = 1000
-use_websocket = true
+use_websocket = false
 custom_multicall_address = "0x0c9A8dB3B6C58bC02b8473167b0062b543F3ED7f"
 pool_addresses = [
     "0x40ddb85b090a96d61868426c320b2df51b0426e6",
@@ -186,6 +186,8 @@ pool_addresses = [
     "0xbc5e26e6d36537145b3e5ed1dff537561094638f",
     "0x1Eb5fAc40c45361E63861E57cD5C5202e5246716",
     "0x5854b550482dc2785c9c4ecdb235076b5e1d75b7",
+    "0x183477253b3773d0ca1d798c83e7e7572c68375b",
+    "0xeccf20ec789d99357439647f43777a1b0bfa0e8a",
 ]
 pools_with_type = []
 
