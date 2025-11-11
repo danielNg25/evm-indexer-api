@@ -235,5 +235,7 @@ use_websocket = true
 pool_addresses = [
     "0xa7c9e7343bd8f1eb7000f25de5aeb52c6b78b1b7",
     "0xa6ed1a04b9b6b0a6cf3926510546baf5bbe44e5e",
+    "0x63873f0d7165689022FeEf1B77428DF357b33dcf",
+    "0xc9baba3f36ccaa54675deecc327ec7eaa48cb97d",
 ]
 pools_with_type = []
