@@ -114,6 +114,7 @@ pool_addresses = [
     "0x73Eda54A43c6a3d08ee30B089Ef4C1bC3D0d4d9B",
     "0x6C805d2077025EaAa42faE7F764e61Df42aADB14",
     "0x1a229191fd995A5C95694Ee78AB5d3C8c8793023",
+    "0x830e213c8fe6660c21973b53317fcf1c68be774c",
 ]
 pools_with_type = []
 
